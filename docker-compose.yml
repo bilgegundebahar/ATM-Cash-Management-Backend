@@ -1,0 +1,30 @@
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: atm
+      POSTGRES_PASSWORD: atm
+      POSTGRES_DB: atm
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - atm_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U atm -d atm"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+
+  api:
+    build: ./src/Atm.Api
+    ports:
+      - "8080:8080"
+    environment:
+      ConnectionStrings__Atm: Host=db;Database=atm;Username=atm;Password=atm
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  atm_pgdata:

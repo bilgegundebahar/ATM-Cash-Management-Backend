@@ -1,0 +1,490 @@
+{
+  "info": {
+    "name": "ATM Cash Management - E2E",
+    "_postman_id": "f1c7bbef-0b25-4a12-8bad-79c1da72e001",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Run in listed order. Current implementation uses a direct withdraw endpoint; quote/confirm reservations are unfinished."
+  },
+  "item": [
+    {
+      "name": "01 Create ATM",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/atms",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "atms"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Demo ATM\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP success\", function () { pm.expect(pm.response.code).to.be.within(200,299); });",
+              "let body = pm.response.json(); pm.collectionVariables.set(\"atmId\", body.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Configure cassettes",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/atms/{{atmId}}/configure",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "atms",
+            "{{atmId}}",
+            "configure"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "[\n  {\n    \"slot\": 1,\n    \"kind\": 1,\n    \"currency\": 0,\n    \"denomination\": 20\n  },\n  {\n    \"slot\": 2,\n    \"kind\": 1,\n    \"currency\": 0,\n    \"denomination\": 50\n  },\n  {\n    \"slot\": 3,\n    \"kind\": 1,\n    \"currency\": 0,\n    \"denomination\": 100\n  },\n  {\n    \"slot\": 4,\n    \"kind\": 1,\n    \"currency\": 1,\n    \"denomination\": 100\n  },\n  {\n    \"slot\": 5,\n    \"kind\": 0,\n    \"currency\": null,\n    \"denomination\": null\n  }\n]",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP success\", function () { pm.expect(pm.response.code).to.be.within(200,299); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Load cash",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/atms/{{atmId}}/load",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "atms",
+            "{{atmId}}",
+            "load"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "[\n  {\n    \"slot\": 1,\n    \"count\": 10\n  },\n  {\n    \"slot\": 2,\n    \"count\": 3\n  },\n  {\n    \"slot\": 3,\n    \"count\": 0\n  },\n  {\n    \"slot\": 4,\n    \"count\": 2\n  }\n]",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP success\", function () { pm.expect(pm.response.code).to.be.within(200,299); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Set IN_SERVICE",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/atms/{{atmId}}/state",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "atms",
+            "{{atmId}}",
+            "state"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"state\": 3\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP success\", function () { pm.expect(pm.response.code).to.be.within(200,299); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Withdrawal options TRY 160",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/atms/{{atmId}}/withdrawal-options",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "atms",
+            "{{atmId}}",
+            "withdrawal-options"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currency\": 0,\n  \"amount\": 160,\n  \"dailyRemainingLimit\": 20000\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP success\", function () { pm.expect(pm.response.code).to.be.within(200,299); });",
+              "pm.test(\"Exact 160\",()=>pm.expect(pm.response.json().exact.amount).to.eql(160));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Withdraw TRY 160",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/atms/{{atmId}}/withdraw",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "atms",
+            "{{atmId}}",
+            "withdraw"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currency\": 0,\n  \"amount\": 160\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP success\", function () { pm.expect(pm.response.code).to.be.within(200,299); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 Deposit TRY 160",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/atms/{{atmId}}/deposit",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "atms",
+            "{{atmId}}",
+            "deposit"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"notes\": [\n    {\n      \"currency\": 0,\n      \"denomination\": 20,\n      \"count\": 3\n    },\n    {\n      \"currency\": 0,\n      \"denomination\": 50,\n      \"count\": 2\n    }\n  ],\n  \"unrecognisedCount\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP success\", function () { pm.expect(pm.response.code).to.be.within(200,299); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Set MAINTENANCE",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/atms/{{atmId}}/state",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "atms",
+            "{{atmId}}",
+            "state"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"state\": 4\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP success\", function () { pm.expect(pm.response.code).to.be.within(200,299); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Reconcile physical counts",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-User",
+            "value": "officer1"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/atms/{{atmId}}/reconcile",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "atms",
+            "{{atmId}}",
+            "reconcile"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"counts\": [\n    {\n      \"slot\": 1,\n      \"count\": 9\n    },\n    {\n      \"slot\": 2,\n      \"count\": 3\n    },\n    {\n      \"slot\": 3,\n      \"count\": 0\n    },\n    {\n      \"slot\": 4,\n      \"count\": 2\n    },\n    {\n      \"slot\": 5,\n      \"count\": 0\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP success\", function () { pm.expect(pm.response.code).to.be.within(200,299); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 Report",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/atms/{{atmId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "atms",
+            "{{atmId}}"
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP success\", function () { pm.expect(pm.response.code).to.be.within(200,299); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 Balance report",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/atms/{{atmId}}/report",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "atms",
+            "{{atmId}}",
+            "report"
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP success\", function () { pm.expect(pm.response.code).to.be.within(200,299); });"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "atmId",
+      "value": ""
+    }
+  ]
+}
